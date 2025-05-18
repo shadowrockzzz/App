@@ -1,0 +1,27 @@
+name: Notify on Specific Labels
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Specific Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labelName = context.payload.label.name.toLowerCase();
+            const targetLabels = ['help wanted', 'external'];
+
+            if (targetLabels.includes(labelName)) {
+              const issueNumber = context.payload.issue.number;
+              const issueTitle = context.payload.issue.title;
+              const issueUrl = context.payload.issue.html_url;
+
+              console.log(`📣 Issue #${issueNumber} titled "${issueTitle}" has been labeled with "${labelName}".`);
+              console.log(`🔗 ${issueUrl}`);
+
+              // You can add notification logic here, such as sending an email or posting to Slack.
+            }
