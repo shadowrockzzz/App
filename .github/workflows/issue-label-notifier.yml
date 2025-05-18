@@ -8,20 +8,18 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for Specific Labels
-        uses: actions/github-script@v7
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
         with:
-          script: |
-            const labelName = context.payload.label.name.toLowerCase();
-            const targetLabels = ['help wanted', 'external'];
-
-            if (targetLabels.includes(labelName)) {
-              const issueNumber = context.payload.issue.number;
-              const issueTitle = context.payload.issue.title;
-              const issueUrl = context.payload.issue.html_url;
-
-              console.log(`📣 Issue #${issueNumber} titled "${issueTitle}" has been labeled with "${labelName}".`);
-              console.log(`🔗 ${issueUrl}`);
-
-              // You can add notification logic here, such as sending an email or posting to Slack.
-            }
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Issue to work: Expensify Issue #${{ github.event.issue.number }} Labeled with '${{ github.event.label.name }}'"
+          body: |
+            An expensify issue has been labeled with '${{ github.event.label.name }}'.
+            Issue Title: ${{ github.event.issue.title }}
+            Issue URL: ${{ github.event.issue.html_url }}
+          to: ${{ secrets.EMAIL_USERNAME }}
+          from: ${{ secrets.EMAIL_USERNAME }}
+        if: contains(fromJson('["help wanted", "external"]'), github.event.label.name)
