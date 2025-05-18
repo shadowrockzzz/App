@@ -1,4 +1,4 @@
-name: Notify on Specific Labels
+name: Notify on Open Issues with Specific Labels
 
 on:
   issues:
@@ -7,6 +7,7 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
+    if: github.event.issue.state == 'open' && contains(fromJson('["help wanted", "external"]'), github.event.label.name)
     steps:
       - name: Send Email Notification
         uses: dawidd6/action-send-mail@v3
@@ -15,11 +16,10 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "Issue to work: Expensify Issue #${{ github.event.issue.number }} Labeled with '${{ github.event.label.name }}'"
+          subject: "Issue to work: Expensify issue #${{ github.event.issue.number }} Labeled with '${{ github.event.label.name }}'"
           body: |
-            An expensify issue has been labeled with '${{ github.event.label.name }}'.
+            An expensify open issue has been labeled with '${{ github.event.label.name }}'.
             Issue Title: ${{ github.event.issue.title }}
             Issue URL: ${{ github.event.issue.html_url }}
           to: ${{ secrets.EMAIL_USERNAME }}
           from: ${{ secrets.EMAIL_USERNAME }}
-        if: contains(fromJson('["help wanted", "external"]'), github.event.label.name)
